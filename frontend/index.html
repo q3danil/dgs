@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Generate System</title>
+    <!-- Подключаем CSS -->
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/menu.css">
+</head>
+<body>
+
+    <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+    <button class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
+        <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </button>
+
+    <nav class="side-menu" id="sideMenu">
+        <a href="cli-app.html" class="menu-item">Клиент</a>
+        <div class="menu-item" onclick="toggleSubmenu()">Настройки ▾</div>
+        <div id="settingsSubmenu" class="submenu">
+            <div class="submenu-btn" onclick="toggleTheme()">
+                Смена темы <span id="themeIcon">🌙</span>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-screen">
+        <h1 class="main-header">Data Generate System</h1>
+        <a href="generate.html" class="btn-start">Начать работу</a>
+    </section>
+
+    <div class="container">
+        <section class="features-section">
+            <h2 class="section-title">Ключевые возможности</h2>
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-content">
+                        <h3>⚡ Генерация через Faker</h3>
+                        <p>Быстрое создание данных из обширной библиотеки Faker.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-content">
+                        <h3>🧠 AI-генерация</h3>
+                        <p>Создание текстов с помощью локальных LLM.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-content">
+                        <h3>📄 Экспорт в CSV / БД</h3>
+                        <p>Сохраняйте датасеты используя <a href="cli-app.html" class="feature-link">локальный клиент</a>.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-content">
+                        <h3>⚙️ Поддержка YAML</h3>
+                        <p>Настройка параметров через YAML-файлы.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Подключаем JavaScript -->
+    <script src="scripts/common.js"></script>
+    <script src="scripts/menu.js"></script>
+</body>
+</html>
