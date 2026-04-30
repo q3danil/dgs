@@ -18,7 +18,7 @@
 
             <form id="genForm">
                 <label class="form-label">Количество строк (rows)</label>
-                <input type="number" value="50">
+                <input type="number" value="50" min="1" max="1000" required>
 
                 <label class="form-label">Настройка полей данных</label>
                 <div id="fieldsList"></div>
@@ -35,7 +35,7 @@
             <h1>2. Предпросмотр данных</h1>
             <h3> Первые 20 строк </h3>
             <div class="method-selector"></div>
-            
+
             <div class="table-wrapper">
                 <table id="previewTable">
                     <thead id="previewHead"></thead>

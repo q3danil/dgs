@@ -1,4 +1,5 @@
 uvicorn
+requests
 fastapi
 lmstudio
 faker

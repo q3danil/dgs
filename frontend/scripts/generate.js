@@ -5,10 +5,8 @@ function addField() {
     const list = document.getElementById('fieldsList');
     const currentRows = list.getElementsByClassName('field-row').length;
 
-    if (currentRows >= MAX_FIELDS) {
-        return;
-    }
-    
+    if (currentRows >= MAX_FIELDS) return;
+
     const row = document.createElement('div');
     row.className = 'field-row';
     row.style.display = "grid";
@@ -24,23 +22,19 @@ function addField() {
             <option value="float">float</option>
             <option value="boolean">bool</option>
         </select>
-        <button type="button" class="btn-remove" onclick="removeField(this)">✖</button>        
+        <button type="button" class="btn-remove" onclick="removeField(this)">✖</button>
     `;
-   
     list.appendChild(row);
-    updateButtonsState(); // Проверка после добавления
+    updateButtonsState();
 }
-
 
 function removeField(button) {
     const list = document.getElementById('fieldsList');
-    // Удаляем, только если это не последнее поле
-    if (list.querySelectorAll('.field-row').length > 1) {
+    if (list.querySelectorAll('.field-row').length > 2) {
         button.closest('.field-row').remove();
     }
-    updateButtonsState(); // Проверка после удаления
+    updateButtonsState();
 }
-
 
 function updateButtonsState() {
     const list = document.getElementById('fieldsList');
@@ -48,43 +42,35 @@ function updateButtonsState() {
     const removeButtons = list.querySelectorAll('.btn-remove');
     const addButton = document.querySelector('.btn-add');
 
-    // Состояние кнопок удаления (X)
     removeButtons.forEach(btn => {
-        btn.disabled = (rows.length === 1);
-        btn.style.opacity = (rows.length === 1) ? '0.3' : '1';
-        btn.style.cursor = (rows.length === 1) ? 'not-allowed' : 'pointer';
+        const isMinFields = rows.length <= 2;
+        btn.disabled = isMinFields;
+        btn.style.opacity = isMinFields ? '0.3' : '1';
+        btn.style.cursor = isMinFields ? 'not-allowed': 'pointer';
     });
 
-    // Состояние кнопки добавления (+ Добавить колонку)
     if (addButton) {
         if (rows.length >= MAX_FIELDS) {
             addButton.disabled = true;
             addButton.style.opacity = '0.5';
-            addButton.style.cursor = 'not-allowed';
-            addButton.innerText = 'Максимальное число колонок';
+            addButton.innerText = 'Максимум колонок';
         } else {
             addButton.disabled = false;
             addButton.style.opacity = '1';
-            addButton.style.cursor = 'pointer';
             addButton.innerText = '+ Добавить колонку';
         }
     }
 }
-
 
 async function handleFormSubmit(event) {
     event.preventDefault();
     const form = event.target;
     const rowsInput = form.querySelector('input[type="number"]');
     const fieldRows = document.querySelectorAll('.field-row');
-    const loader = document.getElementById('loaderOverlay'); 
+    const loader = document.getElementById('loaderOverlay');
 
-    // Собираем ТОЛЬКО массив строк, так как AIRequest ждет list[str]
     const fieldsArray = Array.from(fieldRows).map(row => row.querySelector('input').value);
-
-    if (fieldsArray.length === 0) {
-        return;
-    }
+    if (fieldsArray.length === 0) return;
 
     const payload = {
         rows: parseInt(rowsInput.value),
@@ -94,36 +80,33 @@ async function handleFormSubmit(event) {
     loader.style.display = 'flex';
 
     try {
-        const response = await fetch('http://127.0.0.1:8000/generate/ai', {
+        const response = await fetch('/api/generate/ai', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
 
-        if (!response.ok) {
-            const errorMessage = typeof result.detail === 'object' 
-                ? JSON.stringify(result.detail) 
-                : result.detail;
-            throw new Error(errorMessage || 'Server error');
-        }
+        const result = await response.json(); // Инициализируем сразу
 
-        const result = await response.json();
+        if (!response.ok) {
+            // Если бэкенд вернул ошибку, выводим её детали
+            const msg = typeof result.detail === 'object' ? JSON.stringify(result.detail) : result.detail;
+            throw new Error(msg || 'Server error');
+        }
 
         if (result.data) {
             lastGeneratedData = result.data;
-            renderPreview(result.data); // Передаем весь массив
+            renderPreview(result.data);
         } else {
-            throw new Error("The server return empty data");
+            throw new Error("Сервер вернул пустые данные");
         }
     } catch (error) {
-        alert('Error: ' + error.message);
+        console.error(error);
+        alert('Ошибка: ' + error.message);
     } finally {
         loader.style.display = 'none';
     }
 }
-
 
 function renderPreview(data) {
     if (!data || data.length === 0) return;
@@ -132,26 +115,20 @@ function renderPreview(data) {
     const head = document.getElementById('previewHead');
     const body = document.getElementById('previewBody');
 
-    // Очищаем таблицу
     head.innerHTML = '';
     body.innerHTML = '';
 
-    // Создаем заголовки (из ключей первого объекта)
     const keys = Object.keys(data[0]);
     const trHead = document.createElement('tr');
     keys.forEach(key => {
         const th = document.createElement('th');
         th.style.padding = '12px';
-        th.style.textAlign = 'left';
-        th.style.borderBottom = '2px solid var(--border-color)';
         th.innerText = key;
         trHead.appendChild(th);
     });
     head.appendChild(trHead);
 
-    // Берем первые 5 строк для предпросмотра
-    const previewRows = data.slice(0, 20); 
-    previewRows.forEach(row => {
+    data.slice(0, 20).forEach(row => {
         const tr = document.createElement('tr');
         keys.forEach(key => {
             const td = document.createElement('td');
@@ -161,36 +138,32 @@ function renderPreview(data) {
         body.appendChild(tr);
     });
 
-    section.style.display = 'block'; // Показываем секцию
-    section.scrollIntoView({ behavior: 'smooth' }); // Плавно скроллим к таблице
+    section.style.display = 'block';
+    section.scrollIntoView({ behavior: 'smooth' });
 }
-
 
 async function exportData() {
     if (!lastGeneratedData) return;
-
     const loader = document.getElementById('loaderOverlay');
     const nameInput = document.getElementById('exportFileName');
-    let fileName = nameInput.value.trim() || "my_dataset";
+    let fileName = nameInput.value.trim() || "dataset";
 
     loader.style.display = 'flex';
-
     try {
-        const response = await fetch('http://127.0.0.1:8000/export/csv', {
+        const response = await fetch('/api/export/csv', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                data: lastGeneratedData,
-                file_name: fileName
-            })
+            body: JSON.stringify({ data: lastGeneratedData, file_name: fileName })
         });
-
-        if (!response.ok) throw new Error("Ошибка сервера");
+        if (!response.ok) throw new Error("Ошибка экспорта");
 
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName.endsWith('.csv') ? fileName : fileName + '.csv';
+        a.click();
         window.URL.revokeObjectURL(url);
-
     } catch (error) {
         alert('Ошибка: ' + error.message);
     } finally {
@@ -198,26 +171,9 @@ async function exportData() {
     }
 }
 
-
-function downloadJSON(data) {
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `data_${Date.now()}.json`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-}
-
-
 window.onload = () => {
     addField();
-    updateButtonsState();
-
+    addField();
     const genForm = document.getElementById('genForm');
-    if (genForm) {
-        genForm.addEventListener('submit', handleFormSubmit);
-    }
+    if (genForm) genForm.addEventListener('submit', handleFormSubmit);
 };

@@ -29,9 +29,55 @@ def clean_csv(raw_text: str) -> str:
     return '\n'.join([header] + data_lines)
 
 
-def parse_csv(text: str) -> list[dict[str, Any]]:
-    reader = csv.DictReader(io.StringIO(clean_csv(text)))
-    return [dict(row) for row in reader]
+def parse_csv(text: str, expected_columns: list) -> list[dict[str, Any]]:
+    cleaned_text = clean_csv(text)
+    if not cleaned_text:
+        return []
+
+    lines = cleaned_text.strip().split('\n')
+    if not lines:
+        return []
+
+    first_line = lines[0].lower()
+    has_header = not ('"1"' in first_line or '1,' in first_line)
+
+    f = io.StringIO(cleaned_text)
+    reader = csv.reader(f, quotechar='"', delimiter=',', skipinitialspace=True)
+
+    if has_header:
+        try:
+            raw_headers = next(reader)
+            headers = [str(h).strip().strip('"').lower() for h in raw_headers]
+        except StopIteration:
+            headers = [c.lower() for c in expected_columns]
+    else:
+        headers = [c.lower() for c in expected_columns]
+
+    data = []
+    for row in reader:
+        if not row: continue
+        clean_row = {}
+        for i, h_name in enumerate(headers):
+            if i < len(row):
+                clean_row[h_name] = row[i]
+        ordered_row = {}
+        for col in expected_columns:
+            col_target = col.lower().strip()
+            val = clean_row.get(col_target)
+            if val is None:
+                try:
+                    idx = [c.lower() for c in expected_columns].index(col_target)
+                    if idx < len(row):
+                        val = row[idx]
+                except ValueError:
+                    pass
+
+            if val is not None:
+                val = str(val).strip().strip('"')
+                if val.lower() == "null": val = ""
+            ordered_row[col] = val if val is not None else ""
+        data.append(ordered_row)
+    return data
 
 
 def _parse_json(text: str) -> list[dict[str, Any]]:
