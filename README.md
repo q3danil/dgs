@@ -20,5 +20,5 @@
 - **Client (CLI)**: Автономное Python-приложение.
 
 ## 🌐 Ссылки
-- **Web UI**: http://217.168.240.111
+- **Web UI**: http://217.168.240.111 (admin/M4X]%c!GGw_q)
 - **API Docs**: http://217.168.240.111/api/docs
