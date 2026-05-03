@@ -51,34 +51,37 @@ class DataGeneratorAI(DataGenerator):
         fields_str = ', '.join(field_names)
         expected_columns = ["ID"] + field_names
         cols_count = len(expected_columns)
-        header_line = ",".join([f'"{f}"' for f in (["ID"] + field_names)])
-        raw_header = ",".join(["ID"] + field_names)
-        example_row = ",".join(['"1"'] + ["Данные"] * (cols_count - 1))
+
+        header_line = ";".join([f'"{f}"' for f in (["ID"] + field_names)])
+        #raw_header = ";".join(["ID"] + field_names)
+        example_row = ";".join(['"1"'] + ["Data"] * (cols_count - 1))
         requirements = (
-            f"Ты — генератор данных. Выдай ТОЛЬКО чистый CSV.\n"
-            "ПЕРВАЯ СТРОКА ОТВЕТА ДОЛЖНА БЫТЬ ЗАГОЛОВКОМ\n"
-            f"ФОРМАТ ЗАГОЛОВКОВ: {raw_header}\n"
-            "ПРАВИЛА:\n"
-            "- Оборачивай каждое значение в кавычки.\n"
-            "- Не пиши пояснений и markdown.\n"
-            f"- СТРОГО {cols_count} колонок в каждой строке.\n"
-            "СТРОГО СЛЕДУЙ ПОРЯДКУ (получил колонки в КОНКРЕТНОЙ ПОСЛЕДОВАТЕЛЬНОСТИ"
-            "в ТАКОЙ ЖЕ последовательности выдал ответ)\n"
-            f"ОБРАЗЕЦ ВЫВОДА:\n{header_line}\n{example_row}"
+            "ACT AS A DATA GENERATOR. OUTPUT ONLY CLEAN CSV.\n"
+            f"STRICTLY FOLLOW THE COLUMN COUNT: {cols_count}\n"
+            "RULES:\n"
+            "- Use SEMICOLON (;) as the separator.\n"
+            "- Wrap EVERY value in double quotes (\").\n"
+            "- NO internal commas in names unless specifically asked.\n"
+            "- NO conversational filler or backslashes.\n"
         )
         task_description = (
-            f"ЗАДАНИЕ: Сгенерируй {self.settings.rows} строк реальных данных.\n"
-            f"Контекст для полей ({fields_str}): это должны быть реалистичные человеческие данные"
-            "(имена, города и т.д. в зависимости от названия поля)."
+            f"TASK: Generate {self.settings.rows} rows of realistic data.\n"
+            f"FIELDS TO GENERATE ({fields_str}).\n"
+            "LANGUAGE: RUSSIAN.\n"
+            f"OUTPUT FORMAT EXAMPLE:\n{header_line}\n{example_row}"
         )
         prompt = f"{requirements}\n\n{task_description}"
         payload = {
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0,
+            "messages": [
+                {"role": "system", "content": "You are a strict CSV generator. Use SEMICOLON (;) as a separator. "
+                "No chat, no markdown."},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.8,
+            "seed": -1,
             "max_tokens": 4096
         }
-
-        response_data = requests.post(self.lm_studio_url, json=payload, timeout=600).json()
+        response_data = requests.post(self.lm_studio_url, json=payload, timeout=2400).json
         csv_content = response_data['choices'][0]['message']['content'].strip()
         data = parse_csv(text=csv_content, expected_columns=expected_columns)
-        return data
+        yield from data

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Предпросмотр данных</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <a href="generate.html" class="back-link"><span>&lt;</span> Назад к генерации</a>
+
+    <div class="wizard-wrapper">
+        <div class="cards-container">
+            <h1 class="step-title">2. Предпросмотр данных</h1>
+            <div class="step-card">
+                <h3>Первые 20 строк</h3>
+                <div class="table-wrapper">
+                    <table id="previewTable">
+                        <thead id="previewHead"></thead>
+                        <tbody id="previewBody"></tbody>
+                    </table>
+                </div>
+                <div class="export-block" style="margin-top: 20px;">
+                    <div class="form-group">
+                        <label>Имя файла (без расширения)</label>
+                        <input type="text" id="exportFileName" placeholder="my_dataset">
+                    </div>
+                    <button type="button" class="btn-export" onclick="exportData()">Скачать результат</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scripts/common.js"></script>
+    <script src="scripts/preview.js"></script>
+</body>
+</html>

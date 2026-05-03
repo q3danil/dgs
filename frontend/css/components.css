@@ -1,0 +1,96 @@
+/* --- Компонент: Кнопки и поля ввода --- */
+.btn-add,
+.btn-generate,
+.btn-export {
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+/* Конкретные типы кнопок */
+.btn-add {
+    background-color: var(--accent-blue);
+    color: white;
+}
+.btn-add:hover { background-color: #2b6cb0; }
+
+.btn-generate,
+.btn-export {
+    background-color: var(--accent-blue);
+    color: white;
+    width: 100%;
+}
+.btn-generate:hover,
+.btn-export:hover { background-color: #2b6cb0; }
+
+/* --- Компонент: Поля формы (row) --- */
+.field-row {
+    display: grid;
+    grid-template-columns: 1fr 0.8fr auto;
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
+    align-items: center;
+}
+
+.field-row input,
+.field-row select {
+    background-color: var(--bg-color) !important;
+    color: var(--text-main) !important;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px 35px 8px 10px;
+    height: 45px;
+    appearance: none;
+    cursor: pointer;
+}
+
+/* Кастомная стрелка для select */
+.field-row select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='gray' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+}
+
+/* Кнопка удаления */
+.btn-remove {
+    background: transparent;
+    border: none;
+    font-size: 1.4rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #dc2626;
+}
+.btn-remove:hover { color: #b91c1c; background: transparent; }
+
+/* --- Компонент: Прокручиваемый контейнер для полей --- */
+.fields-container {
+    height: 280px;
+    overflow-y: auto;
+    margin-bottom: 0.5rem;
+    padding-right: 4px;
+}
+
+/* Стилизация скроллбара */
+.fields-container::-webkit-scrollbar { width: 6px; }
+.fields-container::-webkit-scrollbar-track { background: var(--border-color); border-radius: 3px; }
+.fields-container::-webkit-scrollbar-thumb { background: var(--accent-blue); border-radius: 3px; }
+
+/* --- Компонент: Таблица --- */
+.table-wrapper {
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+table { width: 100%; border-collapse: collapse; }
+th, td {
+    padding: 0.8rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+th { background-color: var(--btn-hover); font-weight: 600; }

@@ -1,19 +1,11 @@
 const MAX_FIELDS = 30;
-let lastGeneratedData = null;
 
+// ---- Управление полями (как раньше) ----
 function addField() {
     const list = document.getElementById('fieldsList');
-    const currentRows = list.getElementsByClassName('field-row').length;
-
-    if (currentRows >= MAX_FIELDS) return;
-
+    if (list.getElementsByClassName('field-row').length >= MAX_FIELDS) return;
     const row = document.createElement('div');
     row.className = 'field-row';
-    row.style.display = "grid";
-    row.style.gridTemplateColumns = "1.5fr 1fr auto";
-    row.style.gap = "10px";
-    row.style.marginBottom = "10px";
-
     row.innerHTML = `
         <input type="text" placeholder="Имя поля" required>
         <select required>
@@ -22,7 +14,7 @@ function addField() {
             <option value="float">float</option>
             <option value="boolean">bool</option>
         </select>
-        <button type="button" class="btn-remove" onclick="removeField(this)">✖</button>
+        <button type="button" class="btn-remove" onclick="removeField(this)">✕</button>
     `;
     list.appendChild(row);
     updateButtonsState();
@@ -45,8 +37,8 @@ function updateButtonsState() {
     removeButtons.forEach(btn => {
         const isMinFields = rows.length <= 2;
         btn.disabled = isMinFields;
-        btn.style.opacity = isMinFields ? '0.3' : '1';
-        btn.style.cursor = isMinFields ? 'not-allowed': 'pointer';
+        btn.style.opacity = isMinFields ? '0.4' : '1';
+        btn.style.cursor = isMinFields ? 'default' : 'pointer';
     });
 
     if (addButton) {
@@ -62,22 +54,34 @@ function updateButtonsState() {
     }
 }
 
+// ---- Стриминг и сохранение ----
 async function handleFormSubmit(event) {
     event.preventDefault();
-    const form = event.target;
-    const rowsInput = form.querySelector('input[type="number"]');
+    const rowsInput = document.getElementById('rowsCount');
     const fieldRows = document.querySelectorAll('.field-row');
     const loader = document.getElementById('loaderOverlay');
 
-    const fieldsArray = Array.from(fieldRows).map(row => row.querySelector('input').value);
-    if (fieldsArray.length === 0) return;
+    const fieldsArray = Array.from(fieldRows)
+        .map(row => row.querySelector('input').value.trim())
+        .filter(val => val !== "");
 
-    const payload = {
-        rows: parseInt(rowsInput.value),
-        fields: fieldsArray
-    };
+    if (fieldsArray.length === 0) {
+        alert("Добавьте хотя бы одно поле");
+        return;
+    }
+
+    const totalRows = parseInt(rowsInput.value, 10);
+    if (isNaN(totalRows) || totalRows <= 0) {
+        alert("Количество строк должно быть больше 0");
+        return;
+    }
+
+    const payload = { rows: totalRows, fields: fieldsArray };
+    console.log('Запрос:', payload);
 
     loader.style.display = 'flex';
+    let allData = [];
+    let received = 0;
 
     try {
         const response = await fetch('/api/generate/ai', {
@@ -86,94 +90,63 @@ async function handleFormSubmit(event) {
             body: JSON.stringify(payload)
         });
 
-        const result = await response.json(); // Инициализируем сразу
-
         if (!response.ok) {
-            // Если бэкенд вернул ошибку, выводим её детали
-            const msg = typeof result.detail === 'object' ? JSON.stringify(result.detail) : result.detail;
-            throw new Error(msg || 'Server error');
+            const err = await response.json();
+            throw new Error(err.detail || `Ошибка сервера: ${response.status}`);
         }
 
-        if (result.data) {
-            lastGeneratedData = result.data;
-            renderPreview(result.data);
-        } else {
-            throw new Error("Сервер вернул пустые данные");
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop();
+
+            for (const line of lines) {
+                if (!line.trim()) continue;
+                try {
+                    const dataObj = JSON.parse(line);
+                    if (dataObj.chunk && Array.isArray(dataObj.chunk) && dataObj.chunk.length > 0) {
+                        allData.push(...dataObj.chunk);
+                        received += dataObj.chunk.length;
+                        // можно обновлять прогресс, но так как мы не показываем его на этой странице – просто логируем
+                        console.log(`Получено ${received} / ${totalRows}`);
+                    }
+                } catch (e) {
+                    console.error('Ошибка парсинга чанка:', line, e);
+                }
+            }
         }
+
+        if (allData.length === 0) {
+            throw new Error('Сервер не вернул ни одной строки');
+        }
+
+        // Сохраняем данные в sessionStorage
+        sessionStorage.setItem('generatedData', JSON.stringify(allData));
+        sessionStorage.setItem('totalRowsRequested', totalRows);
+
+        // Редирект на страницу предпросмотра
+        window.location.href = '/preview.html';
+
     } catch (error) {
-        console.error(error);
+        console.error('Ошибка:', error);
         alert('Ошибка: ' + error.message);
     } finally {
         loader.style.display = 'none';
     }
 }
 
-function renderPreview(data) {
-    if (!data || data.length === 0) return;
-
-    const section = document.getElementById('previewSection');
-    const head = document.getElementById('previewHead');
-    const body = document.getElementById('previewBody');
-
-    head.innerHTML = '';
-    body.innerHTML = '';
-
-    const keys = Object.keys(data[0]);
-    const trHead = document.createElement('tr');
-    keys.forEach(key => {
-        const th = document.createElement('th');
-        th.style.padding = '12px';
-        th.innerText = key;
-        trHead.appendChild(th);
-    });
-    head.appendChild(trHead);
-
-    data.slice(0, 20).forEach(row => {
-        const tr = document.createElement('tr');
-        keys.forEach(key => {
-            const td = document.createElement('td');
-            td.innerText = row[key] !== undefined ? row[key] : '';
-            tr.appendChild(td);
-        });
-        body.appendChild(tr);
-    });
-
-    section.style.display = 'block';
-    section.scrollIntoView({ behavior: 'smooth' });
-}
-
-async function exportData() {
-    if (!lastGeneratedData) return;
-    const loader = document.getElementById('loaderOverlay');
-    const nameInput = document.getElementById('exportFileName');
-    let fileName = nameInput.value.trim() || "dataset";
-
-    loader.style.display = 'flex';
-    try {
-        const response = await fetch('/api/export/csv', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: lastGeneratedData, file_name: fileName })
-        });
-        if (!response.ok) throw new Error("Ошибка экспорта");
-
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = fileName.endsWith('.csv') ? fileName : fileName + '.csv';
-        a.click();
-        window.URL.revokeObjectURL(url);
-    } catch (error) {
-        alert('Ошибка: ' + error.message);
-    } finally {
-        loader.style.display = 'none';
-    }
-}
-
+// ---- Инициализация ----
 window.onload = () => {
-    addField();
-    addField();
-    const genForm = document.getElementById('genForm');
-    if (genForm) genForm.addEventListener('submit', handleFormSubmit);
+    // Создаём 5 полей по умолчанию
+    for (let i = 0; i < 5; i++) {
+        addField();
+    }
+    document.getElementById('genForm').addEventListener('submit', handleFormSubmit);
 };

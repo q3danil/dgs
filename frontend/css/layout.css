@@ -1,0 +1,82 @@
+/* Блок для кнопки "Назад" */
+.back-link {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    z-index: 1000;
+}
+.back-link:hover { color: var(--accent-blue); }
+
+/* Обертка с кнопками-стрелками */
+.wizard-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* Контейнер для карточек */
+.cards-container { flex: 1; }
+
+/* Стрелки переключения */
+.nav-arrow {
+    background: transparent;
+    border: none;
+    font-size: 3.5rem;
+    width: 60px;
+    height: 180px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.nav-arrow:hover:not(:disabled) {
+    color: var(--accent-blue);
+    transform: translateY(4px) scale(1.05);
+}
+.nav-arrow:disabled { opacity: 0.3; cursor: default; }
+
+/* Прогресс-бар */
+.progress-bar-container {
+    background-color: var(--border-color);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+}
+.progress-fill {
+    width: 0%;
+    height: 100%;
+    background-color: var(--accent-blue);
+}
+
+/* Лоадер во весь экран */
+.loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+}
+.spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid rgba(255,255,255,0.3);
+    border-top: 4px solid white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 16px;
+}

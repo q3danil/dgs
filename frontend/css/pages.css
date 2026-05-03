@@ -1,0 +1,11 @@
+/* --- Страница 1: Генерация (generate.html) --- */
+.page-generate .step-card { max-width: 100%; }
+.step-title { text-align: left; font-size: 48px; margin-bottom: 50px; }
+
+/* --- Страница 2: Превью (preview.html) --- */
+.preview-card { max-width: 100%; }
+.export-block {
+    margin-top: 1.2rem;
+    padding-top: 1.2rem;
+    border-top: 1px solid var(--border-color);
+}

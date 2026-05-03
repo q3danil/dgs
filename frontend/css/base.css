@@ -1,0 +1,30 @@
+:root {
+    /* Светлая тема */
+    --bg-color: #ffffff;
+    --text-main: #1a202c;
+    --text-muted: #4a5568;
+    --border-color: #e2e8f0;
+    --menu-bg: #ffffff;
+    --btn-hover: #f7fafc;
+    --accent-blue: #3182ce;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--text-main);
+    background-color: var(--bg-color);
+    line-height: 1.5;
+    transition: background-color 0.3s;
+}
+
+/* Глобальные анимации */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

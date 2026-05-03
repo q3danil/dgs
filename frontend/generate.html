@@ -4,59 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Генерация данных</title>
-    <link rel="stylesheet" href="css/common.css">
-    <link rel="stylesheet" href="css/generate.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="snap-container">
+<body>
     <a href="index.html" class="back-link"><span>&lt;</span> Назад</a>
 
-    <!-- СЕКЦИЯ 1: ФОРМА -->
-    <section class="snap-section">
-        <div class="container">
-            <h1>1. Генерация данных</h1>
-            <div class="method-selector"></div>
-
-            <form id="genForm">
-                <label class="form-label">Количество строк (rows)</label>
-                <input type="number" value="50" min="1" max="1000" required>
-
-                <label class="form-label">Настройка полей данных</label>
-                <div id="fieldsList"></div>
-
-                <button type="button" class="btn-add" onclick="addField()">+ Добавить колонку</button>
-                <button type="submit" class="btn-generate">Генерировать</button>
-            </form>
-        </div>
-    </section>
-
-    <!-- СЕКЦИЯ 2: ПРЕДПРОСМОТР -->
-    <section id="previewSection" class="snap-section preview-screen" style="display: none;">
-        <div class="container">
-            <h1>2. Предпросмотр данных</h1>
-            <h3> Первые 20 строк </h3>
-            <div class="method-selector"></div>
-
-            <div class="table-wrapper">
-                <table id="previewTable">
-                    <thead id="previewHead"></thead>
-                    <tbody id="previewBody"></tbody>
-                </table>
+    <div class="wizard-wrapper">
+        <!-- Для единообразия оставляем пустую левую зону, можно убрать -->
+        <div class="cards-container">
+            <h1 class="step-title">1. Генерация данных</h1>
+            <div class="step-card">
+                <form id="genForm">
+                    <div class="form-group">
+                        <label>Количество строк (rows)</label>
+                        <input type="number" id="rowsCount" value="50" min="1" max="1000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Настройка полей данных</label>
+                        <div id="fieldsList" class="fields-container"></div>
+                        <button type="button" class="btn-add" onclick="addField()">+ Добавить колонку</button>
+                    </div>
+                    <button type="submit" class="btn-generate">Генерировать</button>
+                </form>
             </div>
-            <div style="margin-bottom: 15px; width: 100%;">
-                <label class="form-label" style="margin-top: 0; font-size: 14px;">Имя файла (без расширения)</label>
-                <input type="text" id="exportFileName" placeholder="my_dataset" style="padding: 10px 15px;">
-            </div>
-            <button type="button" class="btn-generate export-btn" onclick="exportData()">
-                Скачать результат
-            </button>
         </div>
-    </section>
+    </div>
 
-    <!-- ЛОАДЕР -->
-    <div id="loaderOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; color: white; font-family: sans-serif;">
+    <div id="loaderOverlay" class="loader-overlay">
         <div class="spinner"></div>
-        <p style="font-size: 18px; font-weight: bold;">Идет генерация данных...</p>
-        <p style="font-size: 14px; opacity: 0.8;">Пожалуйста, подождите</p>
+        <p>Идет генерация данных...</p>
+        <p class="small">Пожалуйста, подождите</p>
     </div>
 
     <script src="scripts/common.js"></script>

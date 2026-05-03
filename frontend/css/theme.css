@@ -1,0 +1,24 @@
+body.dark-mode {
+    --bg-color: #121212;
+    --text-main: #f7fafc;
+    --text-muted: #a0aec0;
+    --border-color: #2d3748;
+    --menu-bg: #1a202c;
+    --btn-hover: #2d3748;
+    --accent-blue: #63b3ed;
+}
+
+/* Переопределяем специфичные стили для тёмной темы */
+body.dark-mode .btn-remove { color: #f87171; }
+body.dark-mode .btn-remove:hover { color: #ef4444; }
+
+body.dark-mode .field-row select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='#a0aec0' stroke-width='2'...");
+}
+body.dark-mode .table-wrapper,
+body.dark-mode input,
+body.dark-mode select {
+    background-color: #1a202c;
+    border-color: #2d3748;
+}
+body.dark-mode .back-link:hover { background: rgba(99, 179, 237, 0.15); }
